@@ -3,7 +3,7 @@ syntax = "proto3";
 package chat;
 
 service ChatService {
-    rpc BidiChat(stream ChatMessageRequest) return (stream ChatMessageResponse)
+    rpc BidiChat(stream ChatMessageRequest) returns (stream ChatMessageResponse);
 }
 
 message ChatMessageRequest {
