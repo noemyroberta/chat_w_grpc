@@ -7,4 +7,4 @@ import chat_pb2_grpc as chat_grpc
 
 class ChatServicer(chat_grpc.ChatServiceServicer):
     def Chat(self, request, context):
-        return super().BidiChat(request, context);
+        return super().BidiChat(request, context)
