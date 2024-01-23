@@ -19,7 +19,7 @@ class ChatServicer(chat_grpc.ChatServiceServicer):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    chat_grpc.add_ChatServicer_to_server(ChatServicer(), server)
+    chat_grpc.add_ChatServiceServicer_to_server(ChatServicer(), server)
     server.add_insecure_port("[::]:50051")
     server.start()
     print("Server started on port 50051")
