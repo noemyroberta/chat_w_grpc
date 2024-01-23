@@ -25,7 +25,7 @@ def receive_messages(client):
         print(f"[{response.name}]: {response.msg}")
 
 
-if __name__ == "__main__":
+def execute():
     name = input("Enter your name: ")
     host = 'localhost'
     port = '50051'
@@ -40,3 +40,7 @@ if __name__ == "__main__":
             receive_messages(client)
     except KeyboardInterrupt:
         pass
+
+
+if __name__ == "__main__":
+    execute()
