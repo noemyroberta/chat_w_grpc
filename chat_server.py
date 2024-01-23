@@ -5,28 +5,29 @@ import grpc
 import chat_pb2
 import chat_pb2_grpc as chat_grpc
 
+
 class ChatServicer(chat_grpc.ChatServiceServicer):
+    def __init__(self):
+        self.clients = set()
+
     def BidiChat(self, request_iterator, context):
         for request in request_iterator:
-            print("Interacting request made:")
-            print(request)
+            message = f"[{request.name}]: {request.msg}"
 
-            aa = chat_pb2.ChatMessageResponse()
-            aa.message = f"{request.name}: {request.message}"
-            yield aa
-        
-        
-
+            for _ in self.clients:
+                yield chat_pb2.ChatMessageResponse(name=request.name, msg=message)
 
 def serve():
-    host = 'localhost'
-    port = '50051'
-
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    chat_grpc.add_ChatServiceServicer_to_server(ChatServicer(), server)
-    server.add_insecure_port('{}:{}'.format(host, port))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    chat_grpc.add_ChatServicer_to_server(ChatServicer(), server)
+    server.add_insecure_port("[::]:50051")
     server.start()
-    server.wait_for_termination()
+    print("Server started on port 50051")
+    try:
+        while True:
+            time.sleep(86400)
+    except KeyboardInterrupt:
+        server.stop(0)
 
 if __name__ == "__main__":
     serve()
