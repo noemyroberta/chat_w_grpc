@@ -5,9 +5,9 @@ from concurrent import futures
 import threading
 
 class ChatClient:
-    def __init__(self, name):
+    def __init__(self, name:str, host:str, port:str):
         self.name = name
-        self.channel = grpc.insecure_channel("localhost:50051")
+        self.channel = grpc.insecure_channel("{}:{}".format(host, port))
         self.stub = chat_pb2_grpc.ChatServiceStub(self.channel)
 
     def send_message(self, msg):
@@ -24,7 +24,9 @@ def receive_messages(client):
 
 if __name__ == "__main__":
     name = input("Enter your name: ")
-    client = ChatClient(name)
+    host = 'localhost'
+    port = '50051'
+    client = ChatClient(name = name, host = host, port= port)
 
     try:
         while True:
