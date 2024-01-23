@@ -1,30 +1,37 @@
-import chat_pb2_grpc as chat_grpc
-import chat_pb2
-import time
 import grpc
+import chat_pb2
+import chat_pb2_grpc
+from concurrent import futures
+import threading
 
-def chat():
-    while True:
-        message = input("Please enter a message (or nothing to stop chatting): ")
+class ChatClient:
+    def __init__(self, name):
+        self.name = name
+        self.channel = grpc.insecure_channel("localhost:50051")
+        self.stub = chat_pb2_grpc.ChatServiceStub(self.channel)
 
-        if message == "":
-            break
+    def send_message(self, msg):
+        message_request = chat_pb2.ChatMessageRequest(name=self.name, msg=msg)
+        response_iterator = self.stub.BidiChat(iter([message_request]))
+        for response in response_iterator:
+            print(f"[{response.name}]: {response.msg}")
 
-        msg_request = chat_pb2.ChatMessageRequest(name = "You", message = message)
-        yield msg_request
-        time.sleep(1)
+def receive_messages(client):
+    message_response = chat_pb2.ChatMessageRequest(name=client.name, msg="")
+    response_iterator = client.stub.BidiChat(iter([message_response]))
+    for response in response_iterator:
+        print(f"[{response.name}]: {response.msg}")
 
-def run():
-    with grpc.insecure_channel('localhost:5000') as channel:
-        stub = chat_grpc.ChatServiceStub(channel)
-        
-        responses = stub.BidiChat(chat())
+if __name__ == "__main__":
+    name = input("Enter your name: ")
+    client = ChatClient(name)
 
-        for response in responses:
-            print("Interacting response received: ")
-            print(response)
-
-
-if __name__ == '__main__':
-    print('Starting bidirectional chat between client and server')
-    run()
+    try:
+        while True:
+            msg = input("Enter message (or type 'exit' to quit): ")
+            if msg.lower() == "exit":
+                break
+            client.send_message(msg)
+            receive_messages(client)
+    except KeyboardInterrupt:
+        pass
