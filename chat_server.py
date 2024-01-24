@@ -33,7 +33,10 @@ if __name__ == '__main__':
     print('Starting server. Listening...')
     server.add_insecure_port('[::]:' + str(port))
     server.start()
-    client = ChatClient('server')
+
+    nickname = input('Enter your nickname: ')
+    client = ChatClient(nickname)
     threading.Thread(target=client.send_message).start()
+
     while True:
         time.sleep(64 * 64 * 100)
