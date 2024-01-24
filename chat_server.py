@@ -2,10 +2,10 @@ from concurrent import futures
 
 import grpc
 import time
-
+import threading
 import protos.chat_pb2 as chat
 import protos.chat_pb2_grpc as rpc
-
+from chat_client import ChatClient
 port = 33333
 
 
@@ -33,6 +33,7 @@ if __name__ == '__main__':
     print('Starting server. Listening...')
     server.add_insecure_port('[::]:' + str(port))
     server.start()
-
+    client = ChatClient('server')
+    threading.Thread(target=client.send_message).start()
     while True:
         time.sleep(64 * 64 * 100)
