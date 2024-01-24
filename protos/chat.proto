@@ -2,16 +2,14 @@ syntax = "proto3";
 
 package chat;
 
-service ChatService {
-    rpc BidiChat(stream ChatMessageRequest) returns (stream ChatMessageResponse);
+service ChatService {    
+    rpc Receiver(Empty) returns (stream ChatMessage);
+    rpc Sender(ChatMessage) returns (Empty);
 }
 
-message ChatMessageRequest {
+message ChatMessage {
     string name = 1;
     string msg = 2;
 }
 
-message ChatMessageResponse {
-    string name = 1;
-    string msg = 2;
-}
+message Empty {}
