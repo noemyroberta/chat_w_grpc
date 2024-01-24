@@ -21,13 +21,15 @@ class ChatClient:
 
     def send_message(self):
         while True:
-            incomingMessage = input('Enter message or exit to stop chatty: ')
+            incomingMessage = input('Enter message or nothing to stop chatty: ')
             if incomingMessage != '':
                 chatty = chat.ChatMessage()
                 chatty.name = self.nickname
                 chatty.msg = incomingMessage
 
                 self.stub.Sender(chatty)
+            else:
+                break
             time.sleep(1)
 
 if __name__ == '__main__':
