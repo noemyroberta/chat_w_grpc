@@ -1,33 +1,38 @@
 from concurrent import futures
-import time
 
 import grpc
-import chat_pb2
-import chat_pb2_grpc as chat_grpc
+import time
+
+import protos.chat_pb2 as chat
+import protos.chat_pb2_grpc as rpc
+
+port = 33333
 
 
-class ChatServicer(chat_grpc.ChatServiceServicer):
+class ChatService(rpc.ChatServiceServicer):
     def __init__(self):
-        self.clients = set()
+        self.chats = []
 
-    def BidiChat(self, request_iterator, context):
-        for request in request_iterator:
-            message = f"[{request.name}]: {request.msg}"
-
-            for _ in self.clients:
-                yield chat_pb2.ChatMessageResponse(name=request.name, msg=message)
-
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    chat_grpc.add_ChatServiceServicer_to_server(ChatServicer(), server)
-    server.add_insecure_port("[::]:50051")
-    server.start()
-    print("Server started on port 50051")
-    try:
+    def Receiver(self, request_iterator, context):
+        lastindex = 0
         while True:
-            time.sleep(86400)
-    except KeyboardInterrupt:
-        server.stop(0)
+            while len(self.chats) > lastindex:
+                msg = self.chats[lastindex]
+                lastindex += 1
+                yield msg
 
-if __name__ == "__main__":
-    serve()
+    def Sender(self, request: chat.ChatMessage, context):
+        self.chats.append(request)
+        return chat.Empty()
+
+
+if __name__ == '__main__':
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    rpc.add_ChatServiceServicer_to_server(ChatService(), server)
+
+    print('Starting server. Listening...')
+    server.add_insecure_port('[::]:' + str(port))
+    server.start()
+
+    while True:
+        time.sleep(64 * 64 * 100)
