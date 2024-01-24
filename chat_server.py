@@ -13,7 +13,7 @@ class ChatService(rpc.ChatServiceServicer):
     def __init__(self):
         self.chats = []
 
-    def Receiver(self, request_iterator, context):
+    def Receiver(self, _, __):
         lastindex = 0
         while True:
             while len(self.chats) > lastindex:
@@ -21,7 +21,7 @@ class ChatService(rpc.ChatServiceServicer):
                 lastindex += 1
                 yield msg
 
-    def Sender(self, request: chat.ChatMessage, context):
+    def Sender(self, request: chat.ChatMessage, _):
         self.chats.append(request)
         return chat.Empty()
 
